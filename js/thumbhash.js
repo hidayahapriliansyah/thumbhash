@@ -99,7 +99,7 @@ export function rgbaToThumbHash(w, h, rgba) {
  * @param hash The bytes of the ThumbHash.
  * @returns The width, height, and pixels of the rendered placeholder image.
  */
-export function thumbHashToRGBA(hash) {
+export function thumbHashToRGBA(hash, maxPixel) {
   let { PI, min, max, cos, round } = Math
 
   // Read the constants
@@ -135,8 +135,8 @@ export function thumbHashToRGBA(hash) {
 
   // Decode using the DCT into RGB
   let ratio = thumbHashToApproximateAspectRatio(hash)
-  let w = round(ratio > 1 ? 32 : 32 * ratio)
-  let h = round(ratio > 1 ? 32 / ratio : 32)
+  let w = round(ratio > 1 ? maxPixel : maxPixel * ratio)
+  let h = round(ratio > 1 ? maxPixel / ratio : maxPixel)
   let rgba = new Uint8Array(w * h * 4), fx = [], fy = []
   for (let y = 0, i = 0; y < h; y++) {
     for (let x = 0; x < w; x++, i += 4) {
@@ -282,7 +282,7 @@ export function rgbaToDataURL(w, h, rgba) {
  * @param hash The bytes of the ThumbHash.
  * @returns A data URL containing a PNG for the rendered ThumbHash.
  */
-export function thumbHashToDataURL(hash) {
-  let image = thumbHashToRGBA(hash)
+export function thumbHashToDataURL(hash, maxPixel = 32) {
+  let image = thumbHashToRGBA(hash, maxPixel)
   return rgbaToDataURL(image.w, image.h, image.rgba)
 }
